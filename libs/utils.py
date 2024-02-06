@@ -93,7 +93,7 @@ def obtener_combinaciones(numeros, n=6, cols=['N1', 'N2', 'N3', 'N4', 'N5', 'N6'
     df = pd.DataFrame(combinations(numeros, n), columns=cols)
     return df
 
-def obtener_probs_combinaciones(df, probabilidades, media, moda1, moda2):
+def obtener_probs_combinaciones(df, probabilidades):
     df['SUMA'] = df[['N1', 'N2', 'N3', 'N4', 'N5', 'N6']].sum(axis=1)
     df['RESTA'] = df['N6'] - df['N5'] - df['N4'] - df['N3'] - df['N2'] - df['N1']
 
@@ -102,7 +102,7 @@ def obtener_probs_combinaciones(df, probabilidades, media, moda1, moda2):
     df['D3'] = df['N4'] - df['N3']
     df['D4'] = df['N5'] - df['N4']
     df['D5'] = df['N6'] - df['N5']
-    df['SET'] = df[['N1', 'N2', 'N3', 'N4', 'N5', 'N6']].apply(lambda x: set(x), axis=1)
+    df['set'] = df[['N1', 'N2', 'N3', 'N4', 'N5', 'N6']].apply(lambda x: set(x), axis=1)
     probs_dict = probabilidades.set_index('N').to_dict(orient='index')
     for i in range(1, 7):
         df['P' + str(i)] = df['N' + str(i)].map(lambda num: obtener_probabilidad(probs_dict, num, i))
@@ -116,18 +116,6 @@ def obtener_probs_combinaciones(df, probabilidades, media, moda1, moda2):
     df['PROB'] = df[['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P_SUMA', 'P_RESTA', 'P_D1', 'P_D2', 'P_D3', 'P_D4', 'P_D5']].product(axis=1)    
     df.reset_index(inplace=True, drop=True)
     df = df[['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'PROB', 'SET']]#, 'aciertos_0', 'aciertos_1', 'aciertos_2', 'aciertos_3', 'aciertos_4', 'aciertos_5', 'aciertos_6']].copy()
-    #df['ALPHA'] = df['PROB']-moda1
-    ##df['ALPHA2'] = df['PROB']-moda2
-    #df['ALPHA3'] = df['PROB']-media
-    #df['ALPHA'] = df['ALPHA'].abs()
-    #df['ALPHA2'] = df['ALPHA2'].abs()
-    #df['ALPHA3'] = df['ALPHA3'].abs()    
-    #maximo = df['PROB'].max()
-    #minimo = df['PROB'].min()
-    #df['PROB_N'] = (df['PROB'] - minimo) / (maximo - minimo)
-    #df['ALPHA_N'] = (df['ALPHA'] - minimo) / (maximo - minimo)
-    #df['ALPHA2_N'] = (df['ALPHA2'] - minimo) / (maximo - minimo)
-    #df['ALPHA3_N'] = (df['ALPHA3'] - minimo) / (maximo - minimo)
     
     return df
 
@@ -197,7 +185,7 @@ def ordenar(df, field, asc=True):
     return df.copy()
 
 def comprobar(ganadora, df):
-    df['aciertos'] = df['SET'].apply(lambda x: len(x.intersection(ganadora)))
+    df['aciertos'] = df['set'].apply(lambda x: len(x.intersection(ganadora)))
     return df.copy()
 
 def seleccionar(combinaciones, n = 1):

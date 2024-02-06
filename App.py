@@ -34,25 +34,45 @@ def obtener_seleccionadas(combinaciones, *argv):
         seleccionadas = list(filter(lambda item: filtrar(frios, listas, item), combinaciones))
         return seleccionadas[0:10]
 
-combinaciones = combinations(range(1, 50), 6)
+df_combinaciones = obtener_combinaciones(list(range(1, 50)))
+
 while len(test) > 0:
-        sorteos_df = pd.DataFrame(train, columns=['FECHA', 'N1', 'N2', 'N3', 'N4', 'N5', 'N6'])
         ganadora = test.pop(0)
         freq = obtener_frecuencias(train, n=0, fecha=train[-1][0])
-        freq['DIFF'] = freq['ULTIMA_VEZ'] - freq['MEDIA_DIAS']
-        freq.sort_values(by=['DIFF'], ascending=False, inplace=True)
+
+        sorteos_df = pd.DataFrame(train, columns=['FECHA', 'N1', 'N2', 'N3', 'N4', 'N5', 'N6'])
+        sorteos_df = obtener_probs_numeros(sorteos_df, freq)
+        sorteos_df, suma_df, resta_df, d1_df, d2_df, d3_df, d4_df, d5_df, pares_df = generar_estadisticas(sorteos_df)
+        sorteos_df['PROB'] = sorteos_df[['P1', 'P2', 'P3', 'P4', 'P5', 'P6']].product(axis=1)
+        probabilidades = {'SUMA':suma_df, 'RESTA':resta_df, 'D1':d1_df, 'D2':d2_df, 'D3':d3_df, 'D4':d4_df, 'D5':d5_df , 'NUM_PARES': pares_df }
         
+        df_combinaciones = obtener_probs_numeros(df_combinaciones, freq)
+        df_combinaciones['PROB'] = df_combinaciones[['P1', 'P2', 'P3', 'P4', 'P5', 'P6']].product(axis=1)
+        df_combinaciones['PROB_MEAN'] = (df_combinaciones['PROB']-sorteos_df['PROB'].mean()).abs()
+        df_combinaciones['set'] = df_combinaciones[['N1', 'N2', 'N3', 'N4', 'N5', 'N6']].apply(lambda x: set(x), axis=1)
+        df_combinaciones.sort_values(by=['PROB_MEAN'], ascending=True, inplace=True)
+        df_combinaciones = comprobar(set(ganadora[1:]), df_combinaciones.head(10))
+
+        print(ganadora)
+        print(df_combinaciones)
+        input('...')
+        '''
         listas = []
         for i in range(0, 10):
                 freq_item = freq[(freq.ULTIMA_VEZ == i)].copy()
                 freq_item.sort_values(by=['FREQ'], ascending=False, inplace=True)
                 listas.append(freq_item.N.to_list())
+
         freq_item = freq[(freq.ULTIMA_VEZ >= 10)].copy()
         freq_item.sort_values(by=['FREQ'], ascending=False, inplace=True)
+        
         frios = freq_item.N.to_list()
+
         set_ganadora = set(ganadora[1:])
         seleccionadas = obtener_seleccionadas(combinaciones, frios, listas)
+        
         print(len(seleccionadas))
+        '''
 
         #Añadimos la fila del sorteocelebrado al final
         train.append(ganadora)

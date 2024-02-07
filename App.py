@@ -17,9 +17,6 @@ sorteos.sort(key=lambda x:x[0])
 n = len(sorteos)-100
 train = sorteos[2000:n]
 test = sorteos[n:]
-print(train[-1])
-print(test[0])
-test = sorteos[n:]
 
 ##########################
 def filtrar(frios, listas, item):
@@ -32,7 +29,7 @@ def filtrar(frios, listas, item):
 def obtener_seleccionadas(combinaciones, *argv):
         frios, listas = argv
         seleccionadas = list(filter(lambda item: filtrar(frios, listas, item), combinaciones))
-        return seleccionadas[0:10]
+        return seleccionadas[0:10].copy()
 
 df_combinaciones = obtener_combinaciones(list(range(1, 50)))
 
@@ -51,11 +48,11 @@ while len(test) > 0:
         df_combinaciones['PROB_MEAN'] = (df_combinaciones['PROB']-sorteos_df['PROB'].mean()).abs()
         df_combinaciones['set'] = df_combinaciones[['N1', 'N2', 'N3', 'N4', 'N5', 'N6']].apply(lambda x: set(x), axis=1)
         df_combinaciones.sort_values(by=['PROB_MEAN'], ascending=True, inplace=True)
-        df_combinaciones = comprobar(set(ganadora[1:]), df_combinaciones.head(10))
+        df_seleccionadas = comprobar(set(ganadora[1:]), df_combinaciones.head(10))
 
         print(ganadora)
         print(df_combinaciones)
-        input('...')
+        print(df_seleccionadas)
         '''
         listas = []
         for i in range(0, 10):
